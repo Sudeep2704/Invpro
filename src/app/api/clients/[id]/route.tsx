@@ -1,20 +1,20 @@
 // src/app/api/clients/[id]/route.ts
-import { NextResponse } from "next/server";
-import { connectDB } from "../../../lib/mongodb";
-import Client from "../../../models/client";
+export const runtime = "nodejs";
 
-type Params = { params: { id: string } };
+import { NextRequest, NextResponse } from "next/server";
+import { connectDB } from "@/app/lib/mongodb";
+import Client from "@/app/models/client";
 
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     await connectDB();
-    const { id } = params;
-    const deleted = await Client.findByIdAndDelete(id);
+
+    const deleted = await Client.findByIdAndDelete(params.id);
     if (!deleted) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Internal error" }, { status: 500 });
+    return NextResponse.json({ error: e?.message || "Internal error" }, { status: 500 });
   }
 }
