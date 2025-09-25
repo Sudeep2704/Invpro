@@ -5,6 +5,17 @@ import { compare } from "bcrypt";
 import User from "../models/user";
 import { connectDB } from "@/app/lib/mongodb";
 
+/**
+ * The shape we expect when calling .lean() and including the password.
+ */
+type LeanUser = {
+  _id: any;
+  name?: string;
+  email: string;
+  password: string; // hashed password (we explicitly select this)
+  role?: string;
+};
+
 export const authOptions = {
   providers: [
     Credentials({
@@ -29,7 +40,15 @@ export const authOptions = {
 
         // Real user: check DB
         await connectDB();
-        const user = await User.findOne({ email }).lean();
+
+        // include the password field if your schema uses select:false
+        const raw = await User.findOne({ email })
+          .select("+password")
+          .lean(); // don't give generic here — we'll cast explicitly below
+
+        // Explicitly assert the shape to avoid the "array union" typing issue:
+        const user = raw as LeanUser | null;
+
         if (!user) return null;
 
         const ok = await compare(password, user.password);
@@ -47,14 +66,14 @@ export const authOptions = {
   session: { strategy: "jwt" as const },
   pages: { signIn: "/login" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
         token.uid = (user as any).id;
         token.role = (user as any).role || "user";
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         (session.user as any).id = token.uid;
         (session.user as any).role = token.role;
@@ -63,3 +82,5 @@ export const authOptions = {
     },
   },
 };
+
+export default NextAuth(authOptions as any);

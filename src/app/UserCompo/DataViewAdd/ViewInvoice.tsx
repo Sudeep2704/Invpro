@@ -47,7 +47,8 @@ async function getInvoices(params: {
   status?: "paid" | "unpaid" | "";
   sort?: "amountDesc" | "amountAsc" | "dateDesc" | "dateAsc" | "";
 }): Promise<Invoice[]> {
-  const host = headers().get("host");
+  const h = await headers();  
+  const host = h.get("host") ?? "localhost:3000";
   const proto = process.env.NODE_ENV === "production" ? "https" : "http";
 
   const qs = new URLSearchParams();

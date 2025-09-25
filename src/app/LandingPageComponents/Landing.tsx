@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Activity, Lock, Clock, FolderKanban, BarChart3 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { GlowingEffect } from "../../components/ui/glowing-effect";
 import { Vortex } from "../../components/ui/vortex";
 import Footer from "./Footer"

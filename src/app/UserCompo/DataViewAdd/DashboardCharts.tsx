@@ -133,7 +133,7 @@ export default function DashboardCharts() {
                 nameKey="name"
                 innerRadius={50}
                 outerRadius={80}
-                label={(e)=> `${e.name}: ${INR(e.value)}`}
+                label={(e)=> `${e.name}: ${INR(e.value ?? 0)}`}
               >
                 {donutData.map((_,i)=><Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>

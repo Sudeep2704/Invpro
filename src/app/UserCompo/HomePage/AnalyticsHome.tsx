@@ -361,7 +361,7 @@ export default function AnalyticsPage() {
                         dataKey="value"
                         nameKey="name"
                         outerRadius={100}
-                        label={(e) => `${e.name}: ${fmtINR(e.value)}`}
+                        label={(e) => `${e.name}: ${fmtINR(e.value ?? 0)}`}
                       >
                         {pieAmountData.map((_, idx) => (
                           <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
