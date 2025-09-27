@@ -1,24 +1,38 @@
 // src/app/(app)/manage-clients/page.tsx
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "../../lib/mongodb";
 import ClientModel from "../../models/client";
-import Link from "next/link";
-import DeleteClientButton from "../buttons/DeleteClientButton";
+import DeleteClientButton from "../../UserCompo/buttons/DeleteClientButton"
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function fmt(d?: string | null) {
   if (!d) return "—";
   const date = new Date(d);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("en-IN");
 }
 
 export default async function ManageClientsPage() {
+  // 🔐 Require session
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+  const email = session.user.email.toLowerCase();
+
   await connectDB();
 
-  const docs = await ClientModel.find({}).sort({ createdAt: -1 }).lean();
+  // 🔒 Only this user's clients
+  const docs = await ClientModel.find({ ownerEmail: email })
+    .sort({ createdAt: -1 })
+    .lean();
 
   const clients = docs.map((c: any) => ({
-    _id: c._id.toString(),
+    _id: String(c._id),
     name: c.name,
     address: c.address,
     serviceType: c.serviceType,
@@ -29,9 +43,9 @@ export default async function ManageClientsPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-white">Clients</h1>
+        <h1 className="text-2xl font-semibold text-black">Saved Clients</h1>
         <Link
-          href="/addclient"
+          href="/dashboard/clientdash/addclient"
           className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition"
         >
           + Add Client

@@ -40,7 +40,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+    <main className="min-h-screen flex items-center justify-center bg-[#2C3A53] p-6">
       <div className="bg-white w-full max-w-md rounded-lg shadow p-8">
         <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
 
@@ -63,7 +63,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <button onClick={demoLogin}
+        <button 
           className="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded py-2">
           Login with Demo Account
         </button>

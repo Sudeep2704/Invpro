@@ -24,7 +24,25 @@ export default function Footer() {
               <li>Phone: +91 9007755859</li>
               <li>Address: Bhubaneswar, India</li>
             </ul>
+            <div className="flex items-center mt-4 space-x-3">
+      {/* Circle image */}
+      <img
+        src="/Sudeepimg.jpeg" 
+        alt="Developer"
+        className="w-12 h-12 rounded-full border-2 border-gray-300 object-cover"
+      />
+      {/* Text + link */}
+      <a
+        href="https://sudeep.tech/" 
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-400 hover:underline"
+      >
+        More about developer →
+      </a>
+    </div>
           </div>
+
 
           {/* Quick Links */}
           <div>

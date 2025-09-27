@@ -6,9 +6,13 @@ import { hash } from "bcrypt";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password required" }, { status: 400 });
+    const { fullName, email, phone, company, address, password } = await req.json();
+
+    if (!fullName || !email || !password) {
+      return NextResponse.json(
+        { error: "Full name, email, and password are required" },
+        { status: 400 }
+      );
     }
 
     await connectDB();
@@ -18,9 +22,13 @@ export async function POST(req: Request) {
     }
 
     const hashed = await hash(password, 10);
+
     const user = await User.create({
-      name: name || "",
+      fullName,
       email: email.toLowerCase(),
+      phone: phone || "",
+      company: company || "",
+      address: address || "",
       password: hashed,
       role: "user",
     });

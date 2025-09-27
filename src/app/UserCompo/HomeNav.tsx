@@ -125,26 +125,30 @@ export default function HomeNav({ children }: Props) {
 
             {/* Home button */}
             <button
-              onClick={() => router.push("/dashboard")}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition flex items-center gap-2"
-            >
-              Home
-            </button>
+  onClick={() => router.push("/dashboard")}
+  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 active:scale-95 transition transform duration-150 flex items-center gap-2 cursor-pointer"
+>
+  Home
+</button>
 
             {/* Profile + Dropdown */}
             <div className="relative group">
               <FaUserCircle size={32} className="cursor-pointer" aria-hidden />
-              <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-md shadow-lg opacity-0 group-hover:opacity-100 group-hover:visible invisible transition duration-200">
-                <a href="viewpro" className="block px-4 py-2 hover:bg-gray-100">
-                  View Profile
-                </a>
-                <button
-                  onClick={() => setShowLogoutConfirm(true)}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
+              <div className="absolute right-0 mt-2 w-40 bg-white text-black rounded-md shadow-lg opacity-0 group-hover:opacity-100 group-hover:visible invisible transition duration-200 overflow-hidden">
+  <a
+    href="/viewpro"
+    className="block px-4 py-2 hover:bg-gray-100 rounded-t-md"
+  >
+    View Profile
+  </a>
+  <button
+    onClick={() => setShowLogoutConfirm(true)}
+    className="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-md cursor-pointer"
+  >
+    Logout
+  </button>
+</div>
+
             </div>
           </div>
         </nav>
@@ -167,14 +171,14 @@ export default function HomeNav({ children }: Props) {
             </h2>
             <div className="flex justify-center gap-4">
               <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-              >
-                Yes
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 active:scale-95 transition transform duration-150 cursor-pointer"
+                      >
+                     Yes
               </button>
               <button
                 onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition"
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition cursor-pointer"
               >
                 No
               </button>

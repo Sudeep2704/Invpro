@@ -1,14 +1,29 @@
-// src/models/User.ts
-import mongoose, { Schema, models, model } from "mongoose";
+// src/app/models/user.ts
+import mongoose, { Schema, models, Model } from "mongoose";
 
-const UserSchema = new Schema(
+export interface IUser {
+  fullName: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  address?: string;
+  password: string; // hashed
+  role: string;
+}
+
+const UserSchema = new Schema<IUser>(
   {
-    name: { type: String },
-    email: { type: String, unique: true, required: true, lowercase: true, trim: true },
-    password: { type: String, required: true }, // hashed
-    role: { type: String, default: "user" },
+    fullName: { type: String, required: true },     // ✅ not "name"
+    email:    { type: String, required: true, unique: true, index: true },
+    phone:    { type: String, default: "" },
+    company:  { type: String, default: "" },
+    address:  { type: String, default: "" },
+    password: { type: String, required: true },
+    role:     { type: String, default: "user" },
   },
-  { timestamps: true }
+  { timestamps: true } // keeps createdAt/updatedAt
 );
 
-export default models.User || model("User", UserSchema);
+// Important in Next.js dev to avoid OverwriteModelError
+const User: Model<IUser> = models.User || mongoose.model<IUser>("User", UserSchema);
+export default User;

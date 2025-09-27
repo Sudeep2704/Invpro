@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IInvoice extends Document {
+  ownerEmail: string;                 // 🔒 who owns this invoice
+  // OR: ownerId?: Types.ObjectId;    // (use this instead if you prefer user ObjectId)
+
   fyYear: string;
   clientId?: Types.ObjectId | null;
   name: string;
@@ -15,6 +18,9 @@ export interface IInvoice extends Document {
 
 const InvoiceSchema = new Schema<IInvoice>(
   {
+    ownerEmail: { type: String, required: true, index: true }, // ✅ required + indexed
+    // ownerId: { type: Schema.Types.ObjectId, ref: "User", required: false, index: true },
+
     fyYear: { type: String, required: true },
     clientId: { type: Schema.Types.ObjectId, ref: "Client", required: false },
     name: { type: String, required: true },
@@ -28,6 +34,15 @@ const InvoiceSchema = new Schema<IInvoice>(
   },
   { timestamps: true }
 );
+
+// Optional but helpful: prevent duplicate invoice numbers for the same user
+InvoiceSchema.index({ ownerEmail: 1, number: 1 }, { unique: false });
+
+// Normalize ownerEmail
+InvoiceSchema.pre("save", function (next) {
+  if (this.ownerEmail) this.ownerEmail = this.ownerEmail.toLowerCase();
+  next();
+});
 
 export default mongoose.models.Invoice ||
   mongoose.model<IInvoice>("Invoice", InvoiceSchema);

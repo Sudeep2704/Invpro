@@ -113,125 +113,127 @@ export default function AddInvoice() {
     <div className="min-h-screen flex justify-center items-center bg-gray-50 p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-md border border-gray-300 p-8 w-full max-w-lg space-y-6 rounded-none" // ⬅️ rectangular
+        className="bg-white shadow-md border border-gray-300 p-8 w-full max-w-5xl space-y-6 rounded-none"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 text-center">
+        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">
           Add Invoice
         </h2>
 
-        {/* FY Year */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Financial Year
-          </label>
-          <select
-            name="fyYear"
-            value={form.fyYear}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          >
-            <option value="">Select FY Year</option>
-            <option value="2024-25">2024-25</option>
-            <option value="2025-26">2025-26</option>
-          </select>
-        </div>
-
-        {/* Client (from MongoDB) */}
-        <div>
-          <div className="flex items-center justify-between">
+        {/* Grid layout for landscape form */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* FY Year */}
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Client
+              Financial Year
             </label>
-            <Link href="/addclient" className="text-sm text-blue-600 hover:underline">
-              + Add new client
-            </Link>
-          </div>
-
-          {loadingClients ? (
-            <div className="text-sm text-gray-500">Loading clients…</div>
-          ) : clientError ? (
-            <div className="text-sm text-red-600">{clientError}</div>
-          ) : (
             <select
-              name="clientId"
-              value={form.clientId}
+              name="fyYear"
+              value={form.fyYear}
               onChange={handleChange}
               required
               className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
             >
-              <option value="">Select a client</option>
-              {clients.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
+              <option value="">Select FY Year</option>
+              <option value="2024-25">2024-25</option>
+              <option value="2025-26">2025-26</option>
             </select>
-          )}
+          </div>
+
+          {/* Client */}
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Client
+              </label>
+              <Link href="/dashboard/clientdash/addclient" className="text-sm text-blue-600 hover:underline">
+                + Add new client
+              </Link>
+            </div>
+            {loadingClients ? (
+              <div className="text-sm text-gray-500">Loading clients…</div>
+            ) : clientError ? (
+              <div className="text-sm text-red-600">{clientError}</div>
+            ) : (
+              <select
+                name="clientId"
+                value={form.clientId}
+                onChange={handleChange}
+                required
+                className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+              >
+                <option value="">Select a client</option>
+                {clients.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Invoice Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Invoice Name
+            </label>
+            <input
+              name="name"
+              placeholder="Enter invoice name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+            />
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date
+            </label>
+            <input
+              type="date"
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+            />
+          </div>
+
+          {/* Invoice Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Invoice Number
+            </label>
+            <input
+              name="number"
+              placeholder="INV-001"
+              value={form.number}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+            />
+          </div>
+
+          {/* Amount */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Amount
+            </label>
+            <input
+              type="number"
+              name="amount"
+              placeholder="Enter amount"
+              value={form.amount}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+            />
+          </div>
         </div>
 
-        {/* Invoice Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Invoice Name
-          </label>
-          <input
-            name="name"
-            placeholder="Enter invoice name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          />
-        </div>
-
-        {/* Date */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date
-          </label>
-          <input
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          />
-        </div>
-
-        {/* Invoice Number */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Invoice Number
-          </label>
-          <input
-            name="number"
-            placeholder="INV-001"
-            value={form.number}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          />
-        </div>
-
-        {/* Amount */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Amount
-          </label>
-          <input
-            type="number"
-            name="amount"
-            placeholder="Enter amount"
-            value={form.amount}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          />
-        </div>
-
-        {/* Description */}
+        {/* Description - full width */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Description
@@ -245,49 +247,50 @@ export default function AddInvoice() {
           />
         </div>
 
-        {/* Payment Status */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Payment Status
-          </label>
-          <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="isPaid"
-                value="yes"
-                checked={form.isPaid === "yes"}
-                onChange={handleChange}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <span>Yes</span>
+        {/* Payment Status + File Upload in 2 cols */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Payment Status
             </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="isPaid"
-                value="no"
-                checked={form.isPaid === "no"}
-                onChange={handleChange}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <span>No</span>
-            </label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="isPaid"
+                  value="yes"
+                  checked={form.isPaid === "yes"}
+                  onChange={handleChange}
+                  className="text-blue-600 focus:ring-blue-500"
+                />
+                <span>Yes</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="isPaid"
+                  value="no"
+                  checked={form.isPaid === "no"}
+                  onChange={handleChange}
+                  className="text-blue-600 focus:ring-blue-500"
+                />
+                <span>No</span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* PDF Upload */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload PDF
-          </label>
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={handleFile}
-            required
-            className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload PDF
+            </label>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFile}
+              required
+              className="w-full p-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-none"
+            />
+          </div>
         </div>
 
         {/* Buttons */}

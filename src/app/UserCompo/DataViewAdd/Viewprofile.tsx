@@ -1,11 +1,12 @@
 // src/app/profile/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { FaUserCircle } from "react-icons/fa";
 
 type UserProfile = {
-  id: string;
+  id?: string;
   fullName: string;   // read-only
   email: string;      // read-only
   phone: string;      // editable
@@ -13,35 +14,68 @@ type UserProfile = {
   company?: string;   // editable
 };
 
-const initialData: UserProfile = {
-  id: "u_1001",
-  fullName: "Sudeep Kumar Manna",
-  email: "sudeep@example.com",
-  phone: "+91 98765 43210",
-  address: "KIIT, Bhubaneswar, Odisha",
-  company: "NSS / KIIT",
-};
-
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>(initialData);
-  const [draftProfile, setDraftProfile] = useState<UserProfile>(initialData); // temp edits
+  const { status } = useSession(); // "loading" | "authenticated" | "unauthenticated"
+
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [draftProfile, setDraftProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<null | { type: "success" | "error"; text: string }>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] =
+    useState<null | { type: "success" | "error"; text: string }>(null);
+
+  // Load current user's profile (session-based)
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      // Not logged in → send to login
+      signIn();
+      return;
+    }
+    if (status !== "authenticated") return;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/profile", {
+          cache: "no-store",
+          credentials: "include", // send session cookies
+        });
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const data = (await res.json()) as UserProfile;
+        setProfile(data);
+        setDraftProfile(data);
+      } catch (e) {
+        setMessage({ type: "error", text: "Could not load profile." });
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [status]);
 
   const handleChange = (key: keyof UserProfile, value: string) => {
-    setDraftProfile((p) => ({ ...p, [key]: value }));
+    setDraftProfile((p) => (p ? { ...p, [key]: value } : p));
   };
 
   const handleSave = async () => {
+    if (!draftProfile) return;
     setSaving(true);
     setMessage(null);
 
     try {
-      // Replace with API call
-      await new Promise((r) => setTimeout(r, 700));
-
-      setProfile(draftProfile); // commit edits
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          phone: draftProfile.phone,
+          address: draftProfile.address,
+          company: draftProfile.company,
+        }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const updated = (await res.json()) as UserProfile;
+      setProfile(updated);
+      setDraftProfile(updated);
       setIsEditing(false);
       setMessage({ type: "success", text: "Profile updated successfully." });
     } catch {
@@ -53,9 +87,16 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
-    setDraftProfile(profile); // reset edits
+    setDraftProfile(profile);
     setIsEditing(false);
   };
+
+  if (status === "loading" || loading) {
+    return <div className="mx-auto max-w-4xl p-6 text-sm text-gray-600">Loading profile…</div>;
+  }
+  if (!profile || !draftProfile) {
+    return <div className="mx-auto max-w-4xl p-6 text-sm text-red-600">Profile not found.</div>;
+  }
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -69,7 +110,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Card */}
-      <div className="rounded-lg border border-gray-700 p-6">
+      <div className="rounded-lg border border-gray-300 p-6">
         <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Always read-only */}
           <ReadOnlyField label="Full Name" value={profile.fullName} />
@@ -109,8 +150,8 @@ export default function ProfilePage() {
             <span
               className={`rounded-md px-3 py-1 text-sm ${
                 message.type === "success"
-                  ? "bg-green-700/40 text-green-200"
-                  : "bg-red-700/40 text-red-200"
+                  ? "bg-green-600/10 text-green-700"
+                  : "bg-red-600/10 text-red-700"
               }`}
             >
               {message.text}
@@ -128,14 +169,14 @@ export default function ProfilePage() {
             <>
               <button
                 onClick={handleCancel}
-                className="rounded-md bg-red-500 px-4 py-2 text-white transition hover:bg-red-700"
+                className="rounded-md bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-md bg-blue-400 px-4 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {saving ? "Saving..." : "Save"}
               </button>
@@ -145,14 +186,13 @@ export default function ProfilePage() {
       </div>
 
       <p className="mt-3 text-xs text-gray-500">
-        Only <span className="font-medium text-gray-300">Phone, Address, Company</span> are editable, Further Queries Contact Developer.
+        Only <span className="font-medium text-gray-700">Phone, Address, Company</span> are editable. Further queries contact developer.
       </p>
     </div>
   );
 }
 
 /* ---------- Small UI helpers ---------- */
-
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="mb-1 block text-sm text-black">{children}</label>;
 }
@@ -161,8 +201,8 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <FieldLabel>{label}</FieldLabel>
-      <div className="rounded-md border border-gray-700  px-3 py-2 text-gray-800">
-        {value || <span className="text-gray-500">—</span>}
+      <div className="rounded-md border border-gray-300 px-3 py-2 text-gray-800">
+        {value || <span className="text-gray-400">—</span>}
       </div>
     </div>
   );
@@ -183,7 +223,7 @@ function EditableField({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-700 px-3 py-2 text-black outline-none transition focus:border-gray-600"
+        className="w-full rounded-md border border-gray-300 px-3 py-2 text-black outline-none transition focus:border-gray-500"
       />
     </div>
   );
